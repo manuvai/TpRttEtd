@@ -6,6 +6,10 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Chargement de la configuration et création de la SessionFactory.
  * (hibernate.cfg.xml)
@@ -20,17 +24,21 @@ public class HibernateUtil {
       configuration.configure("hibernate.cfg.xml");
       System.out.println("Hibernate Configuration loaded");
 
-      /**
+      /*
        * Ajout des classes.
        * Pour metier.Employe le fichier ressource hbm.xml
-       * attaché est metier/Employe.hbm.xml.
+       * attaché est metier/Employe.hbm.xml.old.
        */
-      //			configuration.addClass(metier.Employe.class);
+      // configuration.addClass(entities.Employe.class);
 
-      /**
+
+      /*
        * Entité.
        */
-      //			configuration.addAnnotatedClass(metier.Employe.class);
+
+      List<Class<?>> classList = Arrays.asList(
+              entities.Employe.class);
+      classList.forEach(configuration::addAnnotatedClass);
 
       ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
         .applySettings(configuration.getProperties())
