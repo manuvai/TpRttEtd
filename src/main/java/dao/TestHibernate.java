@@ -6,7 +6,10 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.NativeQuery;
 
+import javax.persistence.criteria.CriteriaQuery;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -64,6 +67,53 @@ public class TestHibernate {
 
   }
 
+  private static List<Employe> findAllEmployes() {
+    Session session = HibernateUtil.getSessionFactory()
+            .getCurrentSession();
+
+    CriteriaQuery<Employe> criteriaQuery = session.getCriteriaBuilder()
+            .createQuery(Employe.class);
+    criteriaQuery.from(Employe.class);
+
+    List<Employe> employeList = session.createQuery(criteriaQuery)
+            .getResultList();
+
+    return employeList;
+  }
+
+  private static void afficherDemandesEmploye() {
+
+    Session session = HibernateUtil.getSessionFactory()
+            .getCurrentSession();
+
+    Transaction transaction = session.beginTransaction();
+    List<Employe> employees = findAllEmployes();
+
+
+    employees.forEach(employe -> System.out.println(employe.getDemandes()));
+    transaction.commit();
+
+  }
+
+  private static void ajouterDemandeEmploye() {
+    Employe employee = fetchEmploye();
+    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+
+    Transaction transaction = session.beginTransaction();
+
+    Demande demande = new Demande();
+    demande.setDateDemande(new Date());
+    demande.setNbJours(5);
+    demande.setDateDebut(new Date());
+    demande.setEmploye(employee);
+
+    employee.getDemandes()
+            .add(demande);
+
+    session.update(employee);
+    transaction.commit();
+  }
+
   /**
    * Programme de test.
    */
@@ -75,5 +125,8 @@ public class TestHibernate {
     Employe emp = fetchEmploye();
 
     System.out.println(emp);
+    afficherDemandesEmploye();
+    ajouterDemandeEmploye();
+    fetchEmploye();
   }
 }/*----- Fin de la classe TestHibernate -----*/

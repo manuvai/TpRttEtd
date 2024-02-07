@@ -21,7 +21,7 @@ public class Demande implements Serializable {
     private Date dateDebut;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CodeEmp", nullable = false)
+    @JoinColumn(name = "CodeEmp")
     private Employe employe;
 
     public Demande() {

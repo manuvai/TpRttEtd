@@ -18,7 +18,7 @@ public class Employe implements Serializable {
     @Column(name = "prenomE")
     private String prenom;
 
-    @OneToMany(mappedBy = "employe", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "employe", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Demande> demandes;
 
     public Employe() {
