@@ -3,6 +3,7 @@ package entities;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "Employe")
@@ -16,6 +17,9 @@ public class Employe implements Serializable {
 
     @Column(name = "prenomE")
     private String prenom;
+
+    @OneToMany(mappedBy = "employe", fetch = FetchType.LAZY)
+    private Set<Demande> demandes;
 
     public Employe() {
     }
@@ -49,19 +53,28 @@ public class Employe implements Serializable {
         this.prenom = prenom;
     }
 
+    public Set<Demande> getDemandes() {
+        return demandes;
+    }
+
+    public void setDemandes(Set<Demande> demandes) {
+        this.demandes = demandes;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Employe)) return false;
         Employe employe = (Employe) o;
-        return getCodeE() == employe.getCodeE()
+        return Objects.equals(getCodeE(), employe.getCodeE())
                 && Objects.equals(getNom(), employe.getNom())
-                && Objects.equals(getPrenom(), employe.getPrenom());
+                && Objects.equals(getPrenom(), employe.getPrenom())
+                && Objects.equals(getDemandes(), employe.getDemandes());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getCodeE(), getNom(), getPrenom());
+        return Objects.hash(getCodeE(), getNom(), getPrenom(), getDemandes());
     }
 
     @Override
@@ -70,6 +83,7 @@ public class Employe implements Serializable {
                 "codeE=" + codeE +
                 ", nom='" + nom + '\'' +
                 ", prenom='" + prenom + '\'' +
+                ", demandes=" + getDemandes() +
                 '}';
     }
 }
