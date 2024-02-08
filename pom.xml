@@ -28,6 +28,22 @@
 			<artifactId>hibernate-core</artifactId>
 			<version>5.6.4.Final</version>
 		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.16.20</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.mebigfatguy</groupId>
+			<artifactId>commons-beanutils2</artifactId>
+			<version>1.9.9</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.9.4</version>
+		</dependency>
 	</dependencies>
 
 	<build>
