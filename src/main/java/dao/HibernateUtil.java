@@ -38,7 +38,8 @@ public class HibernateUtil {
 
       List<Class<?>> classList = Arrays.asList(
               entities.Employe.class,
-              entities.Demande.class);
+              entities.Demande.class,
+              entities.Service.class);
       classList.forEach(configuration::addAnnotatedClass);
 
       ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()

@@ -3,6 +3,7 @@ package dao;
 import dto.EmployeRecap;
 import entities.Demande;
 import entities.Employe;
+import entities.Service;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.NativeQuery;
@@ -10,18 +11,78 @@ import org.hibernate.query.NativeQuery;
 import org.hibernate.query.Query;
 import javax.persistence.criteria.CriteriaQuery;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Classe de test pour Hibernate.
  */
 public class TestHibernate {
 
+  /**
+   * Programme de test.
+   */
+  public static void main(String[] args) {
+    log("\n\n\n******Ex 1*******\n");
+    createEmploye();
+    log("\n\n\n******Ex 2*******\n");
+    fetchEmploye();
+    log("\n\n\n******Ex 3*******\n");
+    createDemande();
+
+    Employe emp = fetchEmploye();
+
+    System.out.println(emp);
+
+    log("\n\n\n******Ex 4*******\n");
+    afficherDemandesEmploye();
+    log("\n\n\n******Ex 5*******\n");
+    ajouterDemandeEmploye();
+    log("\n\n\n******Ex 6*******\n");
+    fetchEmploye();
+
+    log("\n\n\n******Ex 11.a*******\n");
+    afficherNomEtNombreDemande();
+    log("\n\n\n******Ex 11.b*******\n");
+    afficherNomEtNombreDemandeClasse();
+    log("\n\n\n******Ex 11.c*******\n");
+    afficherNomEtNombreDemandeClasse(0);
+    log("\n\n\n******Ex 11.d*******\n");
+    afficherListeEmployes();
+    log("\n\n\n******Ex 11.e*******\n");
+    afficherDemandesPlusDe6Jours();
+    log("\n\n\n******Ex 11.f*******\n");
+    afficherNomEtPrenomHavingNom("on");
+    log("\n\n\n******Ex 12.*******\n");
+    ajouterServices();
+  }
+
+  private static void ajouterServices() {
+    List<String> nomServices = Arrays.asList("Comptabilité",
+            "RH",
+            "Paie",
+            "IT");
+
+    List<Service> listeService = nomServices.stream()
+            .map(TestHibernate::constructServiceFromNom)
+            .collect(Collectors.toList());
+
+    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+
+    Transaction transaction = session.beginTransaction();
+
+    listeService.forEach(session::save);
+
+    transaction.commit();
+  }
+
+  private static Service constructServiceFromNom(String nom) {
+    Service service = new Service();
+    service.setLibelle(nom);
+    return service;
+  }
+
   private static void createEmploye() {
-
-    System.out.println(HibernateUtil.getSessionFactory());
-    System.out.println("Hibernate !");
-    System.out.println(HibernateUtil.getSessionFactory());
-
     Employe e = new Employe("Dupond", "Robert"); // e est éphémère
 
     Session session = HibernateUtil.getSessionFactory()
@@ -111,42 +172,6 @@ public class TestHibernate {
 
     session.update(employee);
     transaction.commit();
-  }
-
-  /**
-   * Programme de test.
-   */
-  public static void main(String[] args) {
-    log("\n\n\n******Ex 1*******\n");
-    createEmploye();
-    log("\n\n\n******Ex 2*******\n");
-    fetchEmploye();
-    log("\n\n\n******Ex 3*******\n");
-    createDemande();
-
-    Employe emp = fetchEmploye();
-
-    System.out.println(emp);
-
-    log("\n\n\n******Ex 4*******\n");
-    afficherDemandesEmploye();
-    log("\n\n\n******Ex 5*******\n");
-    ajouterDemandeEmploye();
-    log("\n\n\n******Ex 6*******\n");
-    fetchEmploye();
-
-    log("\n\n\n******Ex 11.a*******\n");
-    afficherNomEtNombreDemande();
-    log("\n\n\n******Ex 11.b*******\n");
-    afficherNomEtNombreDemandeClasse();
-    log("\n\n\n******Ex 11.c*******\n");
-    afficherNomEtNombreDemandeClasse(0);
-    log("\n\n\n******Ex 11.d*******\n");
-    afficherListeEmployes();
-    log("\n\n\n******Ex 11.e*******\n");
-    afficherDemandesPlusDe6Jours();
-    log("\n\n\n******Ex 11.f*******\n");
-    afficherNomEtPrenomHavingNom("on");
   }
 
   private static void afficherNomEtPrenomHavingNom(String likeParam) {
