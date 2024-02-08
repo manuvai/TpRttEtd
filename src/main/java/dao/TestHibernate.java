@@ -19,263 +19,367 @@ import java.util.stream.Collectors;
  */
 public class TestHibernate {
 
-  /**
-   * Programme de test.
-   */
-  public static void main(String[] args) {
-    log("\n\n\n******Ex 1*******\n");
-    createEmploye();
-    log("\n\n\n******Ex 2*******\n");
-    fetchEmploye();
-    log("\n\n\n******Ex 3*******\n");
-    createDemande();
-
-    Employe emp = fetchEmploye();
-
-    System.out.println(emp);
-
-    log("\n\n\n******Ex 4*******\n");
-    afficherDemandesEmploye();
-    log("\n\n\n******Ex 5*******\n");
-    ajouterDemandeEmploye();
-    log("\n\n\n******Ex 6*******\n");
-    fetchEmploye();
-
-    log("\n\n\n******Ex 11.a*******\n");
-    afficherNomEtNombreDemande();
-    log("\n\n\n******Ex 11.b*******\n");
-    afficherNomEtNombreDemandeClasse();
-    log("\n\n\n******Ex 11.c*******\n");
-    afficherNomEtNombreDemandeClasse(0);
-    log("\n\n\n******Ex 11.d*******\n");
-    afficherListeEmployes();
-    log("\n\n\n******Ex 11.e*******\n");
-    afficherDemandesPlusDe6Jours();
-    log("\n\n\n******Ex 11.f*******\n");
-    afficherNomEtPrenomHavingNom("on");
-    log("\n\n\n******Ex 12.*******\n");
-    ajouterServices();
-  }
+    /**
+     * Programme de test.
+     */
+    public static void main(String[] args) {
+        log("\n\n\n******Ex 1*******\n");
+        createEmploye();
+        log("\n\n\n******Ex 2*******\n");
+        fetchEmploye();
+        log("\n\n\n******Ex 3*******\n");
+        createDemande();
+
+        Employe emp = fetchEmploye();
+
+        System.out.println(emp);
+
+        log("\n\n\n******Ex 4*******\n");
+        afficherDemandesEmploye();
+        log("\n\n\n******Ex 5*******\n");
+        ajouterDemandeEmploye();
+        log("\n\n\n******Ex 6*******\n");
+        fetchEmploye();
+
+        log("\n\n\n******Ex 11.a*******\n");
+        afficherNomEtNombreDemande();
+        log("\n\n\n******Ex 11.b*******\n");
+        afficherNomEtNombreDemandeClasse();
+        log("\n\n\n******Ex 11.c*******\n");
+        afficherNomEtNombreDemandeClasse(0);
+        log("\n\n\n******Ex 11.d*******\n");
+        afficherListeEmployes();
+        log("\n\n\n******Ex 11.e*******\n");
+        afficherDemandesPlusDe6Jours();
+        log("\n\n\n******Ex 11.f*******\n");
+        afficherNomEtPrenomHavingNom("on");
+        log("\n\n\n******Ex 12.*******\n");
+        ajouterServices();
+        log("\n\n\n******Ex 14.*******\n");
+        ajouterEmployesDansService();
+        log("\n\n\n******Ex 15.*******\n");
+        afficherServicesDunEmploye();
+    }
+
+    private static void afficherServicesDunEmploye() {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+
+        Transaction transaction = session.beginTransaction();
+
+        Employe employe = recupererEmployeById(1, session);
+
+        if (employe != null) {
+
+            List<String> nomServiceList = employe.getServices() == null
+                    ? new ArrayList<>()
+                    : employe.getServices()
+                            .stream()
+                            .map(Service::getLibelle)
+                            .collect(Collectors.toList());
+
+            String response = "L'employé " + employe.getNom() + " " + employe.getPrenom()
+                    + " travaille dans ";
+
+            response += nomServiceList.isEmpty()
+                    ? "aucun service"
+                    : "le(s) service(s) " + String.join(", ", nomServiceList);
+
+            log(response);
+        }
+        transaction.commit();
+    }
+
+    private static void ajouterEmployesDansService() {
+        lierEmployeAvecService(1, 2);
+    }
+
+    private static void lierEmployeAvecService(int idEmploye, int idService) {
+        Session session = HibernateUtil.getSessionFactory()
+                .getCurrentSession();
+
+        Transaction transaction = session.beginTransaction();
+
+        Employe employe = recupererEmployeById(idEmploye, session);
+        Service service = recupererServiceById(idService, session);
+
+        lierEmployesDansService(employe, service);
 
-  private static void ajouterServices() {
-    List<String> nomServices = Arrays.asList("Comptabilité",
-            "RH",
-            "Paie",
-            "IT");
+        session.update(employe);
+        session.update(service);
+
+        transaction.commit();
+    }
+
+    private static Employe recupererEmployeById(int id, Session session) {
+        Employe employe = null;
+
+        if (session != null) {
+            employe = session.get(Employe.class, id);
+        }
 
-    List<Service> listeService = nomServices.stream()
-            .map(TestHibernate::constructServiceFromNom)
-            .collect(Collectors.toList());
+        return employe;
+    }
 
-    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+    private static Service recupererServiceById(int id, Session session) {
+        Service service = null;
 
-    Transaction transaction = session.beginTransaction();
+        if (session != null) {
+            service = session.get(Service.class, id);
+        }
 
-    listeService.forEach(session::save);
+        return service;
+    }
 
-    transaction.commit();
-  }
+    private static void lierEmployesDansService(Employe employe, Service service) {
+        if (Objects.isNull(employe) || Objects.isNull(service)) {
+            return;
+        }
 
-  private static Service constructServiceFromNom(String nom) {
-    Service service = new Service();
-    service.setLibelle(nom);
-    return service;
-  }
+        Set<Service> servicesLies = employe.getServices() == null
+                ? new HashSet<>()
+                : employe.getServices();
 
-  private static void createEmploye() {
-    Employe e = new Employe("Dupond", "Robert"); // e est éphémère
+        Set<Employe> employesLies = service.getEmployes() == null
+                ? new HashSet<>()
+                : service.getEmployes();
 
-    Session session = HibernateUtil.getSessionFactory()
-            .getCurrentSession();
-    Transaction tc = session.beginTransaction() ;
-    session.save(e); // e est persistant
+        employesLies.add(employe);
+        servicesLies.add(service);
 
-    tc.commit(); // Commit et flush automatique de la session
-  }
+        employe.setServices(servicesLies);
+        service.setEmployes(employesLies);
+    }
 
-  private static Employe fetchEmploye() {
+    private static void ajouterServices() {
+        List<String> nomServices = Arrays.asList("Comptabilité",
+                "RH",
+                "Paie",
+                "IT");
 
-    Session session = HibernateUtil.getSessionFactory()
-            .getCurrentSession();
+        List<Service> services = nomServices.stream()
+                .map(TestHibernate::constructServiceFromNom)
+                .collect(Collectors.toList());
 
-    Transaction transaction = Objects.isNull(session.getTransaction()) || !session.getTransaction().isActive()
-            ? session.beginTransaction()
-            : session.getTransaction();
-    Employe employe = session.load(Employe.class, 1);
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 
-    System.out.println(employe);
-    transaction.commit();
+        Transaction transaction = session.beginTransaction();
 
-    return employe;
-  }
+        services.forEach(session::save);
 
-  private static void createDemande() {
+        transaction.commit();
+    }
 
-    Employe employe = fetchEmploye();
-    Session session = HibernateUtil.getSessionFactory()
-            .getCurrentSession();
+    private static Service constructServiceFromNom(String nom) {
+        Service service = new Service();
+        service.setLibelle(nom);
+        return service;
+    }
 
-    Transaction transaction = session.beginTransaction();
-    Demande demande = new Demande();
-    demande.setDateDemande(new Date());
-    demande.setDateDebut(new Date());
-    demande.setNbJours(3);
-    demande.setEmploye(employe);
+    private static void createEmploye() {
+        createEmploye("Dupont", "Eric");
+        createEmploye("Dupont", "Gargamelle");
+        createEmploye("Alisée", "Gargamelle");
+    }
 
-    session.save(demande);
-    transaction.commit();
+    private static void createEmploye(String nom, String prenom) {
+        Employe e = new Employe(nom, prenom); // e est éphémère
 
-  }
+        Session session = HibernateUtil.getSessionFactory()
+                .getCurrentSession();
+        Transaction tc = session.beginTransaction() ;
+        session.save(e); // e est persistant
 
-  private static List<Employe> findAllEmployes() {
-    Session session = HibernateUtil.getSessionFactory()
-            .getCurrentSession();
+        tc.commit(); // Commit et flush automatique de la session
+    }
 
-    CriteriaQuery<Employe> criteriaQuery = session.getCriteriaBuilder()
-            .createQuery(Employe.class);
-    criteriaQuery.from(Employe.class);
+    private static Employe fetchEmploye() {
 
-    List<Employe> employeList = session.createQuery(criteriaQuery)
-            .getResultList();
+        return fetchEmploye(1);
+    }
 
-    return employeList;
-  }
+    private static Employe fetchEmploye(int inId) {
 
-  private static void afficherDemandesEmploye() {
+        Session session = HibernateUtil.getSessionFactory()
+                .getCurrentSession();
 
-    Session session = HibernateUtil.getSessionFactory()
-            .getCurrentSession();
+        Transaction transaction = Objects.isNull(session.getTransaction()) || !session.getTransaction().isActive()
+                ? session.beginTransaction()
+                : session.getTransaction();
+        Employe employe = session.load(Employe.class, inId);
 
-    Transaction transaction = session.beginTransaction();
-    List<Employe> employees = findAllEmployes();
+        System.out.println(employe);
+        transaction.commit();
 
+        return employe;
+    }
 
-    employees.forEach(employe -> System.out.println(employe.getDemandes()));
-    transaction.commit();
+    private static void createDemande() {
 
-  }
+        Employe employe = fetchEmploye();
+        Session session = HibernateUtil.getSessionFactory()
+                .getCurrentSession();
 
-  private static void ajouterDemandeEmploye() {
-    Employe employee = fetchEmploye();
-    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Transaction transaction = session.beginTransaction();
+        Demande demande = new Demande();
+        demande.setDateDemande(new Date());
+        demande.setDateDebut(new Date());
+        demande.setNbJours(3);
+        demande.setEmploye(employe);
 
-    Transaction transaction = session.beginTransaction();
+        session.save(demande);
+        transaction.commit();
 
-    Demande demande = new Demande();
-    demande.setDateDemande(new Date());
-    demande.setNbJours(5);
-    demande.setDateDebut(new Date());
-    demande.setEmploye(employee);
+    }
 
-    employee.getDemandes()
-            .add(demande);
+    private static List<Employe> findAllEmployes() {
+        Session session = HibernateUtil.getSessionFactory()
+                .getCurrentSession();
 
-    session.update(employee);
-    transaction.commit();
-  }
+        CriteriaQuery<Employe> criteriaQuery = session.getCriteriaBuilder()
+                .createQuery(Employe.class);
+        criteriaQuery.from(Employe.class);
 
-  private static void afficherNomEtPrenomHavingNom(String likeParam) {
-    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-    Transaction transaction = session.beginTransaction();
+        List<Employe> employeList = session.createQuery(criteriaQuery)
+                .getResultList();
 
-    Query query = session.createQuery("FROM Employe e WHERE e.nom LIKE :likeParam");
-    query.setParameter("likeParam", "%" + likeParam + "%");
+        return employeList;
+    }
 
-    List<Employe> results = (List<Employe>) query.list();
+    private static void afficherDemandesEmploye() {
 
-    results.forEach(e -> System.out.println(e.getNom() + " " + e.getPrenom()));
+        Session session = HibernateUtil.getSessionFactory()
+                .getCurrentSession();
 
-    transaction.commit();
-  }
+        Transaction transaction = session.beginTransaction();
+        List<Employe> employees = findAllEmployes();
 
-  private static void afficherDemandesPlusDe6Jours() {
-    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-    Transaction transaction = session.beginTransaction();
 
-    Query query = session.createQuery("FROM Demande WHERE nbJours > 6");
+        employees.forEach(employe -> System.out.println(employe.getDemandes()));
+        transaction.commit();
 
-    List<Demande> results = (List<Demande>) query.list();
+    }
 
-    results.forEach(System.out::println);
+    private static void ajouterDemandeEmploye() {
+        Employe employee = fetchEmploye();
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 
-    transaction.commit();
+        Transaction transaction = session.beginTransaction();
 
-  }
+        Demande demande = new Demande();
+        demande.setDateDemande(new Date());
+        demande.setNbJours(5);
+        demande.setDateDebut(new Date());
+        demande.setEmploye(employee);
 
-  private static void log(Object object) {
-    System.out.println(object);
-  }
+        employee.getDemandes()
+                .add(demande);
 
-  private static void afficherListeEmployes() {
-    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-    Transaction transaction = session.beginTransaction();
+        session.update(employee);
+        transaction.commit();
+    }
 
-    Query query = session.createQuery("FROM Employe");
+    private static void afficherNomEtPrenomHavingNom(String likeParam) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Transaction transaction = session.beginTransaction();
 
-    List results = query.list();
+        Query query = session.createQuery("FROM Employe e WHERE e.nom LIKE :likeParam");
+        query.setParameter("likeParam", "%" + likeParam + "%");
 
-    results.forEach(System.out::println);
+        List<Employe> results = (List<Employe>) query.list();
 
-    transaction.commit();
+        results.forEach(e -> System.out.println(e.getNom() + " " + e.getPrenom()));
 
-  }
+        transaction.commit();
+    }
 
-  private static void afficherNomEtNombreDemande() {
-    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-    Transaction transaction = session.beginTransaction();
+    private static void afficherDemandesPlusDe6Jours() {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Transaction transaction = session.beginTransaction();
 
-    String queryString  = "SELECT e.nomE, COUNT(*) " +
-            "FROM Employe e, Demande d " +
-            "WHERE d.CodeEmp = e.CodeE " +
-            "GROUP BY e.CodeE, e.nomE " +
-            "HAVING COUNT(*) > 1";
+        Query query = session.createQuery("FROM Demande WHERE nbJours > 6");
 
-    Query query = session.createSQLQuery(queryString);
+        List<Demande> results = (List<Demande>) query.list();
 
-    List results = query.list();
+        results.forEach(System.out::println);
 
-    results.forEach(System.out::println);
+        transaction.commit();
 
-    transaction.commit();
-  }
+    }
 
-  private static void afficherNomEtNombreDemandeClasse() {
-    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-    Transaction transaction = session.beginTransaction();
+    private static void log(Object object) {
+        System.out.println(object);
+    }
 
-    String queryString  = "SELECT new dto.EmployeRecap(e.nom, COUNT(*)) " +
-            "FROM Employe e, Demande d " +
-            "WHERE d.employe.codeE = e.codeE " +
-            "GROUP BY e.codeE, e.nom " +
-            "HAVING COUNT(*) > 1";
+    private static void afficherListeEmployes() {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Transaction transaction = session.beginTransaction();
 
-    Query query = session.createQuery(queryString);
+        Query query = session.createQuery("FROM Employe");
 
-    List<EmployeRecap> results = (List<EmployeRecap>) query.list();
+        List results = query.list();
 
-    results.forEach(System.out::println);
+        results.forEach(System.out::println);
 
-    transaction.commit();
-  }
+        transaction.commit();
 
-  private static void afficherNomEtNombreDemandeClasse(Integer demandeCount) {
-    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-    Transaction transaction = session.beginTransaction();
+    }
 
-    String queryString  = "SELECT new dto.EmployeRecap(e.nom, COUNT(*)) " +
-            "FROM Employe e, Demande d " +
-            "WHERE d.employe.codeE = e.codeE " +
-            "GROUP BY e.codeE, e.nom " +
-            "HAVING COUNT(*) > :demandeCount";
+    private static void afficherNomEtNombreDemande() {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Transaction transaction = session.beginTransaction();
 
-    Query query = session.createQuery(queryString);
-    query.setParameter("demandeCount", demandeCount);
+        String queryString  = "SELECT e.nomE, COUNT(*) " +
+                "FROM Employe e, Demande d " +
+                "WHERE d.CodeEmp = e.CodeE " +
+                "GROUP BY e.CodeE, e.nomE " +
+                "HAVING COUNT(*) > 1";
 
-    List<EmployeRecap> results = (List<EmployeRecap>) query.list();
+        Query query = session.createSQLQuery(queryString);
 
-    results.forEach(System.out::println);
+        List results = query.list();
 
-    transaction.commit();
-  }
+        results.forEach(System.out::println);
+
+        transaction.commit();
+    }
+
+    private static void afficherNomEtNombreDemandeClasse() {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Transaction transaction = session.beginTransaction();
+
+        String queryString  = "SELECT new dto.EmployeRecap(e.nom, COUNT(*)) " +
+                "FROM Employe e, Demande d " +
+                "WHERE d.employe.codeE = e.codeE " +
+                "GROUP BY e.codeE, e.nom " +
+                "HAVING COUNT(*) > 1";
+
+        Query query = session.createQuery(queryString);
+
+        List<EmployeRecap> results = (List<EmployeRecap>) query.list();
+
+        results.forEach(System.out::println);
+
+        transaction.commit();
+    }
+
+    private static void afficherNomEtNombreDemandeClasse(Integer demandeCount) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Transaction transaction = session.beginTransaction();
+
+        String queryString  = "SELECT new dto.EmployeRecap(e.nom, COUNT(*)) " +
+                "FROM Employe e, Demande d " +
+                "WHERE d.employe.codeE = e.codeE " +
+                "GROUP BY e.codeE, e.nom " +
+                "HAVING COUNT(*) > :demandeCount";
+
+        Query query = session.createQuery(queryString);
+        query.setParameter("demandeCount", demandeCount);
+
+        List<EmployeRecap> results = (List<EmployeRecap>) query.list();
+
+        results.forEach(System.out::println);
+
+        transaction.commit();
+    }
 }
 

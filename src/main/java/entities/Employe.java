@@ -21,6 +21,12 @@ public class Employe implements Serializable {
     @OneToMany(mappedBy = "employe", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Demande> demandes;
 
+    @ManyToMany
+    @JoinTable(name = "Travailler",
+            joinColumns = @JoinColumn(name = "CodeEmp"),
+            inverseJoinColumns = @JoinColumn(name = "CodeServ"))
+    private Set<Service> services;
+
     public Employe() {
     }
 
@@ -59,6 +65,14 @@ public class Employe implements Serializable {
 
     public void setDemandes(Set<Demande> demandes) {
         this.demandes = demandes;
+    }
+
+    public Set<Service> getServices() {
+        return services;
+    }
+
+    public void setServices(Set<Service> services) {
+        this.services = services;
     }
 
     @Override
