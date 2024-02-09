@@ -2,8 +2,8 @@ package entities;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "Demande")
@@ -23,6 +23,10 @@ public class Demande implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CodeEmp")
     private Employe employe;
+
+    @MapKeyJoinColumn(name = "CodeServ")
+    @OneToMany(mappedBy = "demande", cascade = CascadeType.ALL)
+    private Map<Service,Valider> validers;
 
     public Demande() {
 
@@ -69,11 +73,16 @@ public class Demande implements Serializable {
     }
 
     public boolean isValide() {
-        boolean isValide = false;
+        Set<Service> services = getEmploye() == null || employe.getServices() == null
+                ? new HashSet<>()
+                : employe.getServices();
 
+        List<Valider> validations = services.stream()
+                .map(service -> service.getValiders().get(this))
+                .collect(Collectors.toList());
 
-
-        return isValide;
+        return validations.stream()
+                .allMatch(valider -> valider != null && valider.isValide());
     }
 
     @Override

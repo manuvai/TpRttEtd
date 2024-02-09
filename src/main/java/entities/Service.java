@@ -27,7 +27,7 @@ public class Service {
     private Set<Employe> employes;
 
     @MapKeyJoinColumn(name = "CodeDde")
-    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "serviceValidateur", cascade = CascadeType.ALL)
     private Map<Demande,Valider> validers;
 
     public int getCode() {

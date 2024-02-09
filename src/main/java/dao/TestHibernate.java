@@ -61,6 +61,20 @@ public class TestHibernate {
         afficherServicesDunEmploye();
         log("\n\n\n******Ex 17.*******\n");
         ajouterUnAvisDunService();
+        log("\n\n\n******Ex 18.*******\n");
+        afficherAvisValide();
+    }
+
+    private static void afficherAvisValide() {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+
+        Transaction transaction = session.beginTransaction();
+
+        Demande demande = recupererDemandeById(1, session);
+
+        log(demande.isValide());
+
+        transaction.commit();
     }
 
     private static void ajouterUnAvisDunService() {
@@ -121,7 +135,7 @@ public class TestHibernate {
     }
 
     private static void ajouterEmployesDansService() {
-        lierEmployeAvecService(1, 2);
+        lierEmployeAvecService(1, 1);
     }
 
     private static void lierEmployeAvecService(int idEmploye, int idService) {

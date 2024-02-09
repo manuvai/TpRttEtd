@@ -18,6 +18,9 @@ public class Valider {
     @ManyToOne
     @JoinColumn(name = "CodeServ", insertable = false, updatable = false)
     private Service serviceValidateur;
+    @ManyToOne
+    @JoinColumn(name = "CodeDde", insertable = false, updatable = false)
+    private Demande demande;
 
     public Valider() {}
 
@@ -49,6 +52,10 @@ public class Valider {
 
     public void setDateAvis(Date dateAvis) {
         this.dateAvis = dateAvis;
+    }
+
+    public boolean isValide() {
+        return "Favorable".equals(avis);
     }
 
     @Override
