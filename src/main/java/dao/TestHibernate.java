@@ -343,10 +343,8 @@ public class TestHibernate {
                 .createQuery(Employe.class);
         criteriaQuery.from(Employe.class);
 
-        List<Employe> employeList = session.createQuery(criteriaQuery)
+        return session.createQuery(criteriaQuery)
                 .getResultList();
-
-        return employeList;
     }
 
     private static void afficherDemandesEmploye() {

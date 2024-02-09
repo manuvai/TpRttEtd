@@ -1,6 +1,7 @@
 package entities;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 public class Administratif extends Employe {
@@ -33,5 +34,20 @@ public class Administratif extends Employe {
 
     public void setGrade(String grade) {
         this.grade = grade;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Administratif)) return false;
+        if (!super.equals(o)) return false;
+        Administratif that = (Administratif) o;
+        return Objects.equals(getFonction(), that.getFonction())
+                && Objects.equals(getGrade(), that.getGrade());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), getFonction(), getGrade());
     }
 }

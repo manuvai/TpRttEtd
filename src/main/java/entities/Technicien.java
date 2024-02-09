@@ -1,6 +1,7 @@
 package entities;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 public class Technicien extends Employe {
@@ -33,5 +34,20 @@ public class Technicien extends Employe {
 
     public void setNiveau(String niveau) {
         this.niveau = niveau;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Technicien)) return false;
+        if (!super.equals(o)) return false;
+        Technicien that = (Technicien) o;
+        return Objects.equals(getSpecialite(), that.getSpecialite())
+                && Objects.equals(getNiveau(), that.getNiveau());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), getSpecialite(), getNiveau());
     }
 }

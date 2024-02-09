@@ -6,7 +6,6 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
