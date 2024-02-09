@@ -63,6 +63,30 @@ public class TestHibernate {
         ajouterUnAvisDunService();
         log("\n\n\n******Ex 18.*******\n");
         afficherAvisValide();
+        log("\n\n\n******Ex 19.*******\n");
+        afficherAvisToutesDemandes();
+    }
+
+    private static void afficherAvisToutesDemandes() {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+
+        Transaction transaction = session.beginTransaction();
+
+        List<Demande> demandeList = findAllDemande(session);
+
+        demandeList.forEach(demande -> System.out
+                .println("La demande " + demande.getCode() +
+                        (demande.isValide()
+                                ? " est validée"
+                                : " est pas validée")));
+
+        transaction.commit();
+    }
+
+    private static List<Demande> findAllDemande(Session session) {
+        Query query = session.createQuery("FROM Demande");
+
+        return (List<Demande>) query.list();
     }
 
     private static void afficherAvisValide() {
