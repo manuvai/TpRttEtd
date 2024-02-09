@@ -40,6 +40,8 @@ public class HibernateUtil {
               entities.Employe.class,
               entities.Demande.class,
               entities.Service.class,
+              entities.Administratif.class,
+              entities.Technicien.class,
               entities.Valider.class);
       classList.forEach(configuration::addAnnotatedClass);
 

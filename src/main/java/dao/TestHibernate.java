@@ -65,6 +65,8 @@ public class TestHibernate {
         afficherAvisValide();
         log("\n\n\n******Ex 19.*******\n");
         afficherAvisToutesDemandes();
+        log("\n\n\n******Ex 20.*******\n");
+        afficherAvisToutesDemandes();
     }
 
     private static void afficherAvisToutesDemandes() {
