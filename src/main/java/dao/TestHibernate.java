@@ -1,10 +1,7 @@
 package dao;
 
 import dto.EmployeRecap;
-import entities.Demande;
-import entities.Employe;
-import entities.Service;
-import entities.Valider;
+import entities.*;
 import entities.keys.ValiderKey;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -67,6 +64,33 @@ public class TestHibernate {
         afficherAvisToutesDemandes();
         log("\n\n\n******Ex 20.*******\n");
         afficherAvisToutesDemandes();
+        log("\n\n\n******Ex 21.*******\n");
+        ajouterTechnicien();
+        ajouterAdministratif();
+    }
+
+    private static void ajouterAdministratif() {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+
+        Administratif admin = new Administratif("Jean", "Paul", "Cadre", "Supérieur");
+
+        Transaction transaction = session.beginTransaction();
+
+        session.save(admin);
+
+        transaction.commit();
+    }
+
+    private static void ajouterTechnicien() {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+
+        Technicien technicien = new Technicien("Moli", "Marc", "Commerce", "8");
+
+        Transaction transaction = session.beginTransaction();
+
+        session.save(technicien);
+
+        transaction.commit();
     }
 
     private static void afficherAvisToutesDemandes() {

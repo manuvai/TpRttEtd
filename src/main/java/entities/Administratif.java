@@ -11,6 +11,14 @@ public class Administratif extends Employe {
     @Column(name = "gradeE")
     private String grade;
 
+    public Administratif() {}
+
+    public Administratif(String nom, String prenom, String fonction, String grade) {
+        super(nom, prenom);
+        setFonction(fonction);
+        setGrade(grade);
+    }
+
     public String getFonction() {
         return fonction;
     }

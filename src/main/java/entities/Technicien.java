@@ -11,6 +11,14 @@ public class Technicien extends Employe {
     @Column(name = "niveauE")
     private String niveau;
 
+    public Technicien() {}
+
+    public Technicien(String nom, String prenom, String specialite, String niveau) {
+        super(nom, prenom);
+        setSpecialite(specialite);
+        setNiveau(niveau);
+    }
+
     public String getSpecialite() {
         return specialite;
     }
