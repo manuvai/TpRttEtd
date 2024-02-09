@@ -4,14 +4,14 @@ import dto.EmployeRecap;
 import entities.Demande;
 import entities.Employe;
 import entities.Service;
+import entities.Valider;
+import entities.keys.ValiderKey;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.query.NativeQuery;
-
 import org.hibernate.query.Query;
+
 import javax.persistence.criteria.CriteriaQuery;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -59,6 +59,37 @@ public class TestHibernate {
         ajouterEmployesDansService();
         log("\n\n\n******Ex 15.*******\n");
         afficherServicesDunEmploye();
+        log("\n\n\n******Ex 17.*******\n");
+        ajouterUnAvisDunService();
+    }
+
+    private static void ajouterUnAvisDunService() {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+
+        Transaction transaction = session.beginTransaction();
+
+        Service service = recupererServiceById(1, session);
+
+        Demande demande = recupererDemandeById(1, session);
+        Valider validation = new Valider();
+        validation.setAvis("Favorable");
+        validation.setDateAvis(new Date());
+
+        lierServiceAvecDemande(service, demande, validation);
+
+        service.getValiders()
+                .put(demande, validation);
+
+        session.update(service);
+
+        transaction.commit();
+    }
+
+    private static void lierServiceAvecDemande(Service service, Demande demande, Valider validation) {
+        ValiderKey validerKey = new ValiderKey();
+        validerKey.setCodeService(service.getCode());
+        validerKey.setCodeDemande(demande.getCode());
+        validation.setKey(validerKey);
     }
 
     private static void afficherServicesDunEmploye() {
@@ -128,6 +159,15 @@ public class TestHibernate {
         }
 
         return service;
+    }
+    private static Demande recupererDemandeById(int id, Session session) {
+        Demande demande = null;
+
+        if (session != null) {
+            demande = session.get(Demande.class, id);
+        }
+
+        return demande;
     }
 
     private static void lierEmployesDansService(Employe employe, Service service) {

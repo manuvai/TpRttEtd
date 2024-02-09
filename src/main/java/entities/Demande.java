@@ -11,7 +11,7 @@ public class Demande implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "codeD")
-    private long code;
+    private int code;
 
     @Column(name = "dateD")
     private Date dateDemande;
@@ -28,11 +28,11 @@ public class Demande implements Serializable {
 
     }
 
-    public long getCode() {
+    public int getCode() {
         return code;
     }
 
-    public void setCode(long code) {
+    public void setCode(int code) {
         this.code = code;
     }
 
@@ -66,6 +66,14 @@ public class Demande implements Serializable {
 
     public void setEmploye(Employe employe) {
         this.employe = employe;
+    }
+
+    public boolean isValide() {
+        boolean isValide = false;
+
+
+
+        return isValide;
     }
 
     @Override

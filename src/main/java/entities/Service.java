@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Map;
 import java.util.Set;
 
 @Entity
@@ -18,18 +19,22 @@ public class Service {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "CodeS")
-    private Integer code;
+    private int code;
     @Column(name = "LibelleS")
     private String libelle;
 
     @ManyToMany(mappedBy = "services")
     private Set<Employe> employes;
 
-    public Integer getCode() {
+    @MapKeyJoinColumn(name = "CodeDde")
+    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)
+    private Map<Demande,Valider> validers;
+
+    public int getCode() {
         return code;
     }
 
-    public void setCode(Integer code) {
+    public void setCode(int code) {
         this.code = code;
     }
 
@@ -47,5 +52,13 @@ public class Service {
 
     public void setEmployes(Set<Employe> employes) {
         this.employes = employes;
+    }
+
+    public Map<Demande, Valider> getValiders() {
+        return validers;
+    }
+
+    public void setValiders(Map<Demande, Valider> validers) {
+        this.validers = validers;
     }
 }
